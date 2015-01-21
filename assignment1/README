@@ -1,0 +1,23 @@
+a) This file describes the algorithm used in this project.
+
+- Initially, each process allocates space to hold data for A, b and y.
+
+- Process 0, fills its A matrix and b vector with random values and broadcasts the
+  values to all other processes in the pool, including itself.
+
+- Once all processes receive the A and b matrix, they calculate which rows they will
+  complete their calculation on using the number of processes, number of rows and
+  their own process "rank" (index).
+
+- Each process computes the dot product of b with row i to j of A, where i is the
+  starting row for that process and j is the ending row. The resulting entries are
+  sent to process 0.
+
+- All processes except process 0 exit.
+
+- Process 0 receives the computed dot products for all rows of A with b and stores them in
+  y.
+
+- Process 0 calls getResult(m, n, A, b, y) where m and n is the number of rows and columns in
+  A, b is the initial multipliation vector and y is the result of the matrix / vector multiplication.
+
