@@ -1,0 +1,132 @@
+\documentclass[12pt]{article}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.8}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\setlength\parindent{0pt}
+
+\title{CS 4F03 - Assignment 1}
+\author{Justin Deschamp}
+\date{January 30th, 2015}
+
+\begin{document}
+\maketitle
+
+\textbf{Problem 1}
+\begin{itemize}
+
+    \item[] First we assume the size of each element of the arrays A and B are
+            1 word. Let $C(n)$ represent the amount of clock cycles taken
+            to calculate the dot product of two arrays of size $n$. The
+            equation is then the sum of 3 individual, linear functions.
+
+    \item[] Let $g(n)$ represent the function counting the clock cycles taken
+            for the CPU to access the L1 cache for 2 n sized vectors.
+        \begin{equation}
+            g(n) = 2n \qquad n > 0, n \in \mathbb{R}
+        \end{equation}
+
+    \item[] Let $h(n)$ represent the function counting the clock cycles taken
+            during cache misses while accesses 2 n sized vectors.
+        \begin{equation}
+            h(n) = 200(1 + \frac{n}{4}) \qquad n > 0, n \in \mathbb{R}
+        \end{equation}
+
+    \item[] Let $k(n)$ represent the number of clock cycles taken to compute
+            the arithmetic for the dot product. The value $c$ represents the
+            constant number of clock cycles to perform both the addition and
+            multiplication.
+        \begin{equation}
+            k(n) = c \cdot n \qquad n > 0, n \in \mathbb{R}
+        \end{equation}
+
+    \item[] Finally we have,
+        \begin{equation}
+            \begin{split}
+                C(n) = g(n) + h(n) + k(n) \\
+                C(n) = 2n + 200(1 + \frac{n}{4}) + c \cdot n
+            \end{split}
+        \end{equation}
+
+    \item[] Peak performance happens when we find min($C(n)$), since n is
+            linear and increases positively, this occurs when $n$ is its
+            smallest. So when $n = 1$.
+
+    \item[] Increasing the cache size or clock speed of the processor would
+            increase performance because we would have less cache misses
+            which means less processing time, and a faster processor would
+            give faster processing times.
+
+\end{itemize}
+
+\textbf{Problem 2}
+\begin{itemize}
+
+    \item[] The number of links isn't present in the formula because they
+            have no effect on the time. This is because $t_w$ includes the
+            times for the message to pass through all $l$ nodes.
+
+\end{itemize}
+
+\textbf{Problem 3}
+\begin{itemize}
+
+    \item[] First we define $T(W, p)$ to be the function that calculates the
+            total amount of work done by $p$ processes with a work size of
+            $W$ when 95 percent of the work can be done in parallel.
+        \begin{equation}
+            T(w, p) = 5W + \frac{95W}{p}
+        \end{equation}
+
+    \item[i)] With a fixed W and 100 processes, the speed up would be
+        \begin{equation}
+            \begin{split}
+                &\frac{T(W, 1)}{T(W, 100)} \\\\
+                = &\frac{5W + 95W}{5W + 0.95W} \\
+                = &\frac{100W}{5.95W} \\
+                = &16.81
+            \end{split}
+        \end{equation}
+
+    \item[ii)] With a fixed W and an infinite amount of processes, speed up is
+        \begin{equation}
+            \begin{split}
+                &lim_{n\rightarrow\infty} \> \frac{T(W, 1)}{T(W, n)} \\\\
+                &= \frac{100W}{5.95W} \\
+                &= 20
+            \end{split}
+        \end{equation}
+
+    \item[iii)] Scaling to 50W using 100 processes, the speed up would be
+        \begin{equation}
+            \begin{split}
+                &\frac{T(50W, 1)}{T(50W, 100)} \\\\
+                = &\frac{5(50W) + 95(50W)}{5(50W) + 0.95(50W)} \\
+                = &\frac{5000W}{297.5W} \\
+                = &16.81
+            \end{split}
+        \end{equation}
+
+\end{itemize}
+
+\textbf{Problem 4}
+\begin{itemize}
+
+    \item[] Parts a) through e) and g) can be found on the SVN given to us.
+            As well as on the print outs attached.
+
+    \item[f)] To test this application I made the program print A, b and y
+              to stdout in a format readable by matlab, I then piped it to
+              matlab to check the results for each of my test cases.
+
+    \item[] Cases I tested were, 0x0 sixed A with a small, medium and large
+            amount of processes (0, 1, 2, 10, 100). A small A (2x2-10x10)
+            with a small, medium and large amount of processes. A medium A
+            (50x50-200x200) with a small medium and large amount of processes.
+            A large A (1000x1000-10000x10000) with a small medium and large
+            amount of processes.
+
+\end{itemize}
+
+\end{document}
