@@ -1,17 +1,36 @@
 #include "genmatvec.h"
 #include "matvec.h"
 #include "matvecres.h"
-#include "work_segment.h"
 
 #include <mpi/mpi.h>
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
-void recv_mat_vec(int my_rank, int nprocesses, int m, int n, double *A, double *b);
-void send_mat_vec(int my_rank, int nprocesses, int m, int n, double *A, double *b);
-void compile_result_vec(int my_rank, int nprocesses, int m, double *y);
+struct problem_set {
+    /* process group information */
+    struct {
+        int my_rank;
+        int nprocesses;
+        int tag;
+    } group;
+
+    /* problem information */
+    int rows;
+    int cols;
+    double *A;
+    double *b;
+    double *y;
+};
+
+/* problem set functions */
+void initialize_problem_set(struct problem_set *set);
+void distribute_problem_set(struct problem_set *set);
+void solve_problem_set(struct problem_set *set);
+void compile_problem_set(struct problem_set *set);
+void free_problem_set(struct problem_set *set);
+
+/* help message function */
 void print_help(const char *program);
 
 int
@@ -25,109 +44,171 @@ main(
         exit(EXIT_FAILURE);
     }
 
-    /* initialize random function */
-    srand(time(0));
-
-    int my_rank;            /* The rank of this process */
-    int p;                  /* The number of other processes */
-    int m = atoi(argv[1]);  /* The number of rows */
-    int n = atoi(argv[2]);  /* The number of cols */
-
-    /* Initialize MPI */
+    /* initialize MPI */
     MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &p);
 
-    /* allocate matrix and vectors for holding A, b and y */
-    double *A = malloc(m*n*sizeof(double));
-    double *b = malloc(n*sizeof(double));
-    double *y = malloc(m*sizeof(double));
+    /* create and initialize a problem set */
+    struct problem_set set;
+    set.rows = atoi(argv[1]);
+    set.cols = atoi(argv[2]);
+    initialize_problem_set(&set);
 
-    /* c) produce and distribute A and b to all processes */
-    recv_mat_vec(my_rank, p, m, n, A, b);
+    /* distribute the problem set to each process */
+    distribute_problem_set(&set);
 
-    /* d) compute and send results to process 0 */
-    send_mat_vec(my_rank, p, m, n, A, b);
+    /* solve the problem set */
+    solve_problem_set(&set);
 
-    /* e) process 0 compiles results and calls getResult */
-    if (my_rank == 0)
+    /* compile resuts */
+    compile_problem_set(&set);
+
+    if (set.group.my_rank == 0)
     {
-        compile_result_vec(my_rank, p, m, y);
-        getResult(m, n, A, b, y);
+        printf("A=\n");
+        printMatrix(set.rows, set.cols, set.A);
+        printf("\nb=\n");
+        printVector(set.cols, set.b);
+        printf("\ny=\n");
+        printVector(set.rows, set.y);
     }
 
-    /* done, free memory */
-    free(A);
-    free(b);
-    free(y);
+    /* e) process 0 calls getResult */
+    if (set.group.my_rank == 0)
+    {
+        getResult(set.rows, set.cols, set.A, set.b, set.y);
+    }
 
-    /* Finished with MPI */
+    /* free the problem set */
+    free_problem_set(&set);
+
+    /* finished with MPI */
     MPI_Finalize();
+
+    /* success ! */
     exit(EXIT_SUCCESS);
 }
 
 void
-recv_mat_vec(
-    int my_rank,
-    int nprocesses,
-    int m,
-    int n,
-    double *A,
-    double *b)
+initialize_problem_set(
+    struct problem_set *set)
 {
-    /* process 0 produces and sends A and b */
-    if (my_rank == 0)
-    {
-        /* process 0 creates A and b */
-        genMatrix(m, n, A);
-        genVector(n, b);
-    }
+    /* grab process group information from MPI */
+    MPI_Comm_rank(MPI_COMM_WORLD, &set->group.my_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &set->group.nprocesses);
+    set->group.tag = 0;
 
-    /* send A and b to all processes */
-    MPI_Bcast(A, n*m, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(b, n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    /* allocate matrix and vector pointers */
+    set->A = malloc(set->rows*set->cols*sizeof(double));
+    set->b = malloc(set->cols*sizeof(double));
+    set->y = malloc(set->rows*sizeof(double));
+
+    /* process 0 produces a random A and b */
+    if (set->group.my_rank == 0)
+    {
+        genMatrix(set->rows, set->cols, set->A);
+        genVector(set->cols, set->b);
+    }
 }
 
 void
-send_mat_vec(
-    int my_rank,
-    int nprocesses,
-    int m,
-    int n,
-    double *A,
-    double *b)
+distribute_problem_set(
+    struct problem_set *set)
 {
-    struct work_segment seg = work_segment(m, nprocesses, my_rank);
+    /* broadcast b to everyone */
+    MPI_Bcast(set->b, set->cols, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    /* i didn't know this pseudo stack variable was possible.... */
-    double r[seg.count];
-
+    /* send or receive rows of A */
     int i;
-    for (i = seg.start; i <= seg.end; i++)
-    {
-        double *row = A + (n * i);
-        r[i-seg.start] = dotProduct(n, row, b);
-    }
 
-    MPI_Send(r, seg.count, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+    if (set->group.my_rank == 0)
+    {
+        /* process 0 sends to all processes */
+        for (i = 0; i < set->rows; i++)
+        {
+            int process = i % set->group.nprocesses;
+            double *A_pos = set->A + (i * set->cols);
+
+            /* don't send to self */
+            if (process == 0)
+            {
+                continue;
+            }
+
+            MPI_Send(A_pos, set->cols, MPI_DOUBLE, process,
+                     set->group.tag, MPI_COMM_WORLD);
+        }
+    }
+    else
+    {
+        /* all other processes receive the rows they need from 0 */
+        for (i = set->group.my_rank; i < set->rows; i+=set->group.nprocesses)
+        {
+            double *A_pos = set->A + (i * set->cols);
+
+            MPI_Status status;
+            MPI_Recv(A_pos, set->cols, MPI_DOUBLE, 0,
+                     set->group.tag, MPI_COMM_WORLD, &status);
+        }
+    }
 }
 
 void
-compile_result_vec(
-    int my_rank,
-    int nprocesses,
-    int m,
-    double *y)
+solve_problem_set(
+    struct problem_set *set)
 {
     int i;
-    for (i = 0; i < nprocesses; i++)
+    for (i = set->group.my_rank; i < set->rows; i+=set->group.nprocesses)
     {
-        struct work_segment seg = work_segment(m, nprocesses, i);
-
-        MPI_Status status;
-        MPI_Recv(y, seg.count, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, &status);
-        y += seg.count;
+        double *row = set->A + (set->cols * i);
+        set->y[i] = dotProduct(set->cols, row, set->b);
     }
+}
+
+void
+compile_problem_set(
+    struct problem_set *set)
+{
+    int i;
+
+    if (set->group.my_rank == 0)
+    {
+        /* process 0 receives results from other processes */
+        for (i = 0; i < set->rows; i++)
+        {
+            int process = i % set->group.nprocesses;
+            double *y_pos = set->y + i;
+
+            /* dont receive from self */
+            if (process == 0)
+            {
+                continue;
+            }
+
+            MPI_Status status;
+            MPI_Recv(y_pos, 1, MPI_DOUBLE, process,
+                     set->group.tag, MPI_COMM_WORLD, &status);
+        }
+    }
+    else
+    {
+        /* all other processes send their results to 0 */
+        for (i = set->group.my_rank; i < set->rows; i+=set->group.nprocesses)
+        {
+            double *y_pos = set->y + i;
+
+            MPI_Send(y_pos, 1, MPI_DOUBLE, 0,
+                     set->group.tag, MPI_COMM_WORLD);
+        }
+    }
+}
+
+void
+free_problem_set(
+    struct problem_set *set)
+{
+    free(set->A);
+    free(set->b);
+    free(set->y);
 }
 
 void
