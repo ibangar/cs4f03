@@ -2,16 +2,24 @@ a) This file describes the algorithm used in this project.
 
 - Initially, each process allocates space to hold data for A, b and y.
 
-- Process 0, fills its A matrix and b vector with random values and broadcasts the
-  values to all other processes in the pool, including itself.
+- Process 0 fills its A matrix and b vector with random values
 
-- Once all processes receive the A and b matrix, they calculate which rows they will
-  complete their calculation on using the number of processes, number of rows and
-  their own process "rank" (index).
+- Process 0 sends the entire b to each process.
 
-- Each process computes the dot product of b with row i to j of A, where i is the
-  starting row for that process and j is the ending row. The resulting entries are
-  sent to process 0.
+- Process 0 sends an equal amount of rows from A to each process in an alternating
+  fashion like so:
+
+	for each row of A
+		n = row number mod number of processes
+		send row to process n
+
+- Once all processes receive b and their parts of A, they compute the dot product of
+  each row with b.
+
+	for each row received
+		compute A (dot) b
+
+- Each process sends their result set back to process 0.
 
 - All processes except process 0 exit.
 
