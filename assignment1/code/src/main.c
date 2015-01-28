@@ -53,13 +53,13 @@ main(
     set.cols = atoi(argv[2]);
     initialize_problem_set(&set);
 
-    /* distribute the problem set to each process */
+    /* c) distribute the problem set to each process */
     distribute_problem_set(&set);
 
-    /* solve the problem set */
+    /* d) solve the problem set */
     solve_problem_set(&set);
 
-    /* compile resuts */
+    /* e) compile resuts */
     compile_problem_set(&set);
 
     if (set.group.my_rank == 0)
