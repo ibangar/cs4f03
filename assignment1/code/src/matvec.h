@@ -6,4 +6,10 @@
  */
 double dotProduct(int n, double *a, double *b);
 
+/*
+ * Extra functions for printing a matrix or vector to stdout
+ */
+void printMatrix(int m, int n, double *A);
+void printVector(int n, double *b);
+
 #endif
