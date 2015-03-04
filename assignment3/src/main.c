@@ -1,3 +1,4 @@
+#include "julia.h"
 #include "mandelbrot.h"
 
 #include <math.h>
@@ -40,13 +41,13 @@ main(
     int h = atoi(argv[2]);
     unsigned int m = atoi(argv[3]);
 
-    /* create image */
     struct image_resolution resolution =
     {
         .width = w,
         .height = h
     };
 
+    /* create image for mandelbrot set */
     image_t *image = image_create(&resolution, IMAGE_FORMAT_ARGB);
 
     if (!image)
@@ -58,6 +59,20 @@ main(
     /* fill image with mandelbrot and save it */
     mandelbrot_render(image, m, space_map, color_map);
     image_save(image, "./mandelbrot.rgb");
+    image_free(image);
+
+    /* create image for julia set */
+    image = image_create(&resolution, IMAGE_FORMAT_ARGB);
+
+    if (!image)
+    {
+        printf("failed to create image\n");
+        exit(EXIT_FAILURE);
+    }
+
+    /* fill image with mandelbrot and save it */
+    julia_render(image, m, complex_number(0.0, 1.0), space_map, color_map);
+    image_save(image, "./julia.rgb");
     image_free(image);
 
     /* success ! */

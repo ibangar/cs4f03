@@ -1,4 +1,4 @@
-PROGRAM=mandelbrot
+PROGRAM=fractals
 
 SOURCES=$(wildcard src/*.c)
 
