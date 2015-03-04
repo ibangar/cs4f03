@@ -20,8 +20,10 @@ int verify_args(int argc, char **argv);
 #define CLOCK_DIFF_US(a, b) (b.tv_sec * 1000000UL + b.tv_nsec / 1000UL) - \
                             (a.tv_sec * 1000000UL + a.tv_nsec / 1000UL)
 
-#define ZOOM_X (0.050)
-#define ZOOM_Y (0.050)
+#define ZOOM_X (1.00)
+#define ZOOM_Y (1.00)
+#define SHIFT_X (-2020)
+#define SHIFT_Y (-0)
 
 /* maps for renderer */
 struct complex_number space_map(int p_x, int p_y, int d_w, int d_h);
@@ -138,8 +140,8 @@ space_map(
     int d_w,
     int d_h)
 {
-    p_x -= d_w / 1.5;
-    p_y -= d_h / 2;
+    p_x += SHIFT_X;
+    p_y += SHIFT_Y;
     struct complex_number c;
     c = complex_number((double)p_x * (1.0 / ZOOM_X) / d_w,
                        (double)p_y * (1.0 / ZOOM_Y) / d_h);
