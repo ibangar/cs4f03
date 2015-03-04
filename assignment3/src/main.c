@@ -20,6 +20,9 @@ int verify_args(int argc, char **argv);
 #define CLOCK_DIFF_US(a, b) (b.tv_sec * 1000000UL + b.tv_nsec / 1000UL) - \
                             (a.tv_sec * 1000000UL + a.tv_nsec / 1000UL)
 
+#define ZOOM_X (0.050)
+#define ZOOM_Y (0.050)
+
 /* maps for renderer */
 struct complex_number space_map(int p_x, int p_y, int d_w, int d_h);
 image_color_t color_map(unsigned int k, unsigned int m);
@@ -138,8 +141,8 @@ space_map(
     p_x -= d_w / 1.5;
     p_y -= d_h / 2;
     struct complex_number c;
-    c = complex_number(p_x * 2.0 / d_w*1.5,
-                       p_y * 2.0 / d_h*1.5);
+    c = complex_number((double)p_x * (1.0 / ZOOM_X) / d_w,
+                       (double)p_y * (1.0 / ZOOM_Y) / d_h);
     return c;
 }
 
