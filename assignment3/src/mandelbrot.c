@@ -18,8 +18,8 @@ mandelbrot_render(
     {
         for (b = 0; b < h; b++)
         {
-            struct complex_number c = space_map(a, b, w, h);
-            unsigned int k = _mandelbrot_escape_value(c, m);
+            struct complex_number z = space_map(a, b, w, h);
+            unsigned int k = _mandelbrot_escape_value(z, m);
             image_color_t pixel_color = color_map(k, m);
             image_set_pixel(image, a, b, pixel_color);
         }
@@ -28,19 +28,19 @@ mandelbrot_render(
 
 unsigned int
 _mandelbrot_escape_value(
-    struct complex_number c,
+    struct complex_number z,
     unsigned int m)
 {
     int k;
-    struct complex_number z = { 0, 0 };
+    struct complex_number z_acc = { 0, 0 };
 
     for (k = 0; k < m; k++)
     {
         /* z = z^2 + c */
-        z = complex_add(complex_mul(z, z), c);
+        z_acc = complex_add(complex_mul(z_acc, z_acc), z);
 
         /* check escape value */
-        if (complex_mag(z) > 2)
+        if (complex_mag(z_acc) > 2)
         {
             return k;
         }
