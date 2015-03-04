@@ -133,8 +133,6 @@ color_map(
     unsigned int k,
     unsigned int m)
 {
-    if (k == m)
-        return ARGB(255, 0, 0, 0);
-    else
-        return ARGB(255, 255, 255, 255);
+    unsigned int v = (k * 0x00ffffff) / m;
+    return (v << 8) | (0x000000ff);
 }
