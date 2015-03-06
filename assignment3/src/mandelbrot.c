@@ -82,7 +82,7 @@ mandelbrot_render_lines(
     pthread_mutex_lock(&mandelbrot->mutex);
 
     unsigned int line_start = mandelbrot->line;
-    unsigned int line_end = MIN(w, mandelbrot->line + lines);
+    unsigned int line_end = MIN(w - 1, mandelbrot->line + lines);
     mandelbrot->line = line_end;
 
     pthread_mutex_unlock(&mandelbrot->mutex);

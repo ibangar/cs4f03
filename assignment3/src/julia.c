@@ -85,7 +85,7 @@ julia_render_lines(
     pthread_mutex_lock(&julia->mutex);
 
     unsigned int line_start = julia->line;
-    unsigned int line_end = MIN(w, julia->line + lines);
+    unsigned int line_end = MIN(w - 1, julia->line + lines);
     julia->line = line_end;
 
     pthread_mutex_unlock(&julia->mutex);
