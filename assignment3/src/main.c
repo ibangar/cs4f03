@@ -20,10 +20,10 @@ int verify_args(int argc, char **argv);
 #define CLOCK_DIFF_US(a, b) (b.tv_sec * 1000000UL + b.tv_nsec / 1000UL) - \
                             (a.tv_sec * 1000000UL + a.tv_nsec / 1000UL)
 
-#define ZOOM_X (1.00)
-#define ZOOM_Y (1.00)
-#define SHIFT_X (-2020)
-#define SHIFT_Y (-0)
+#define ZOOM_X (0.40)
+#define ZOOM_Y (0.40)
+#define SHIFT_X (-1020)
+#define SHIFT_Y (-500)
 
 /* maps for renderer */
 struct complex_number space_map(int p_x, int p_y, int d_w, int d_h);
@@ -76,7 +76,7 @@ main(
     }
 
     /* fill image with mandelbrot and save it */
-    julia_render(image, m, complex_number(0.0, 1.0), space_map, color_map);
+    julia_render(image, m, complex_number(-1.0, 0.0), space_map, color_map);
     image_save(image, "./julia.rgb");
     image_free(image);
 
