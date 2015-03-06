@@ -52,28 +52,15 @@ main(
         .height = h
     };
 
-    /* create image for mandelbrot set */
-    image_t *image = image_create(&resolution, IMAGE_FORMAT_ARGB);
+    image_t *image;
 
-    if (!image)
-    {
-        printf("failed to create image\n");
-        exit(EXIT_FAILURE);
-    }
-
-    /* fill image with mandelbrot and save it */
-    mandelbrot_render(image, m, space_map, color_map);
+    /* render a mandelbrot image */
+    mandelbrot_image_t *mandelbrot = mandelbrot_image_init(&resolution, m,
+                                            space_map, color_map);
+    while (mandelbrot_render_lines(mandelbrot, 108));
+    image = mandelbrot_get_image(mandelbrot);
     image_save(image, "./mandelbrot.rgb");
-    image_free(image);
-
-    /* create image for julia set */
-    image = image_create(&resolution, IMAGE_FORMAT_ARGB);
-
-    if (!image)
-    {
-        printf("failed to create image\n");
-        exit(EXIT_FAILURE);
-    }
+    mandelbrot_image_free(mandelbrot);
 
     /* render a julia image */
     julia_image_t *julia = julia_image_init(&resolution, m, complex_number(-1.0, 0.0),
