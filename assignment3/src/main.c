@@ -75,10 +75,13 @@ main(
         exit(EXIT_FAILURE);
     }
 
-    /* fill image with mandelbrot and save it */
-    julia_render(image, m, complex_number(-1.0, 0.0), space_map, color_map);
+    /* render a julia image */
+    julia_image_t *julia = julia_image_init(&resolution, m, complex_number(-1.0, 0.0),
+                                            space_map, color_map);
+    while (julia_render_lines(julia, 108));
+    image = julia_get_image(julia);
     image_save(image, "./julia.rgb");
-    image_free(image);
+    julia_image_free(julia);
 
     /* success ! */
     exit(EXIT_SUCCESS);
