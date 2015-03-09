@@ -1,42 +1,46 @@
-#include "julia.h"
-
 #include <stdio.h>
+
+#include "julia.h"
 
 int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	  int flag, int maxIterations, int *iterations)
 {
-  printf("running julia function with acc single precision\n");
+  printf("running openacc single precision julia function\n");
   int maxIterationCount = 0, i,j;
 
-  double xi, yi, xgap, ygap, savex, savey, radius;
-  int count;
-  xgap = (x[1] - x[0]) / xres;
-  ygap = (y[1] - y[0]) / yres;
+  double xgap = (x[1] - x[0]) / xres;
+  double ygap = (y[1] - y[0]) / yres;
 
+#pragma acc data copyout(iterations[0:xres*yres])
+{
 #pragma acc parallel loop
   for (j = 0; j < yres; j++)
     {
       for (i = 0; i < xres; i++)
 	{
 	  /* pixel to coordinates */
-	  xi = x[0] + i * xgap;
-	  yi = y[0] + j * ygap;
+	  double xi = x[0] + i * xgap;
+	  double yi = y[0] + j * ygap;
 
 	  /* initial value for the iteration */
-	  savex = flag*c[0] + (1-flag)*xi;
-	  savey = flag*c[1] + (1-flag)*yi;
+	  double savex = flag*c[0] + (1-flag)*xi;
+	  double savey = flag*c[1] + (1-flag)*yi;
 
-	  radius = 0.0;
-	  count = 0;
-	  while ( radius <= 4.0 && count < maxIterations )
-	    {
+      /* for testing escape value */
+	  double radius = 0.0;
+	  int count = 0;
+
+      for (; count < maxIterations; count++)
+	  {
 	     double savex2 = xi;
 	      xi = xi * xi - yi * yi + savex;
 	      yi = 2.0f * savex2 * yi + savey;
 	      radius = xi * xi + yi * yi;
-	      count++;
-
-	    }
+          if (radius > 4.0)
+          {
+              break;
+          }
+	  }
 
 	  if(count > maxIterationCount )
 	    maxIterationCount = count;
@@ -57,5 +61,6 @@ int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	    }
 	}
     }
+}
   return maxIterationCount;
 }

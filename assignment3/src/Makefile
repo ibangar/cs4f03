@@ -1,4 +1,4 @@
-TEST_JULIA=julia_omp
+TEST_JULIA=julia_acc_s
 
 CFLAGS+=-Wall
 CFLAGS+=-O2
@@ -60,4 +60,4 @@ run9:
 
 
 clean:
-	@rm -rf $(wildcard *.o) $(TEST_JULIA) *~ *.bak *.bmp julia_serial julia__omp julia_acc_s julia_acc_d
+	@rm -rf $(wildcard *.o) $(TEST_JULIA) *~ *.bak *.bmp julia_serial julia_omp julia_acc_s julia_acc_d
