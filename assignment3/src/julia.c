@@ -2,11 +2,11 @@
 
 #include "julia.h"
 
-int julia(const double *x, int xres, const double *y, int yres, const double *c, 
+int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	  int flag, int maxIterations, int *iterations)
 {
   int maxIterationCount = 0, i,j;
-  
+
   double xi, yi, xgap, ygap, savex, savey, radius;
   int count;
   xgap = (x[1] - x[0]) / xres;
@@ -14,16 +14,16 @@ int julia(const double *x, int xres, const double *y, int yres, const double *c,
 
   for (j = 0; j < yres; j++)
     {
-      for (i = 0; i < xres; i++)    
+      for (i = 0; i < xres; i++)
 	{
 	  /* pixel to coordinates */
 	  xi = x[0] + i * xgap;
 	  yi = y[0] + j * ygap;
-	  
+
 	  /* initial value for the iteration */
 	  savex = flag*c[0] + (1-flag)*xi;
 	  savey = flag*c[1] + (1-flag)*yi;
-	  
+
 	  radius = 0.0;
 	  count = 0;
 	  while ( radius <= 4.0 && count < maxIterations )
@@ -35,10 +35,10 @@ int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	      count++;
 
 	    }
-	  
+
 	  if(count > maxIterationCount )
 	    maxIterationCount = count;
-	  
+
 	  int *p = iterations + j*xres+i;
 
 	  /* If radius <= 4.0, we have hit maxIterations. The point is
@@ -56,6 +56,6 @@ int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	    }
 	}
     }
-  
+
   return maxIterationCount;
 }

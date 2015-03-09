@@ -11,22 +11,22 @@ static RGB table[256] = {{0,0,0}}; /* Initialize to all black */
 
 void initColours()
 {
-  
+
   int i;
   int red, green, blue;
-  
+
   RGB black = {0,0,0};
   RGB white = {255,255,255};
-  
+
   table[0]   = white; /* Windows reserves first color for white */
   table[255] = black; /* Windows reserves last color as black   */
-  
+
   i = 20; /* first 20 and last 20 are reserved */
-  for (red = 0; red <= 255; red+= 51) 
+  for (red = 0; red <= 255; red+= 51)
     {/* the six values of red */
       for (green = 0; green <= 255; green += 51)
 	{
-	  for (blue = 0; blue <= 255; blue+= 51) 
+	  for (blue = 0; blue <= 255; blue+= 51)
 	    {
 	      table[i].r = red;
 	      table[i].g = green;
@@ -65,7 +65,7 @@ void saveBMP(char* filename, int* result, int w, int h, int max_colors){
 	fwrite(bmpfileheader,1,14,f);
 	fwrite(bmpinfoheader,1,40,f);
 
-	
+
 	img = (unsigned char *)malloc(3*w);
 
 	int i,j;
