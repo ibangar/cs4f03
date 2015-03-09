@@ -12,6 +12,7 @@ int julia(const double *x, int xres, const double *y, int yres, const double *c,
   xgap = (x[1] - x[0]) / xres;
   ygap = (y[1] - y[0]) / yres;
 
+#pragma acc parallel loop
   for (j = 0; j < yres; j++)
     {
       for (i = 0; i < xres; i++)
