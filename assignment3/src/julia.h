@@ -1,17 +1,11 @@
-#ifndef __JULIA_H__
-#define __JULIA_H__
 
-#include "complex.h"
-#include "image.h"
+int julia(const double *x, int xres, const double *y, int yres, const double *c, int flag, int maxIterations,
+	  int *iterations);
 
-typedef struct julia_image julia_image_t;
+void getParams(char **argv,  int *flag, double *c, double *x, double *y, int *width, int *height,
+	       int *maxiter, char **image, char **stats);
 
-julia_image_t *julia_image_init(struct image_resolution *resolution, int m, struct complex_number c,
-                                struct complex_number (*space_map)(int, int, int, int),
-                                image_color_t (*color_map)(unsigned int, unsigned int));
-void julia_image_free(julia_image_t *julia);
 
-int julia_render_lines(julia_image_t *julia, unsigned int lines);
-image_t *julia_get_image(julia_image_t *julia);
+void iterations2color(int width, int height, const int *iterations, int max_iterations, int *image);
 
-#endif
+void saveBMP(char* filename, int* result, int width, int height);
