@@ -9,19 +9,22 @@ INCLUDES+=-I./
 SRC=$(wildcard *.c)
 OBJ=$(SRC:%.c=%.o)
 
-default: julia_omp julia_acc_s julia_acc_d
+default: julia_serial julia_omp julia_acc_s julia_acc_d
 
 %.o : %.c
-	gcc $(CFLAGS) $(INCLUDES) -c $^ -o $@
+	gcc $(CFLAGS) $(INCLUDES) -c $^ -o $@ -lrt
+
+julia_serial: $(OBJ)
+	gcc $(CFLAGS) serial/julia.c $(INCLUDES) $^ -o julia_serial -lrt
 
 julia_omp: $(OBJ)
-	gcc $(CFLAGS) omp/julia.c $(INCLUDES) $^ -o julia_omp
+	gcc $(CFLAGS) omp/julia.c $(INCLUDES) $^ -o julia_omp -lrt
 
 julia_acc_s: $(OBJ)
-	pgcc -acc -Minfo -ta=nvidia,cc13 acc_s/julia.c $(INCLUDES) $^ -o julia_acc_s
+	pgcc -acc -Minfo -ta=nvidia,cc13 acc_s/julia.c $(INCLUDES) $^ -o julia_acc_s -lrt
 
 julia_acc_d: $(OBJ)
-	pgcc -acc -Minfo -ta=nvidia,cc13 acc_d/julia.c $(INCLUDES) $^ -o julia_acc_d
+	pgcc -acc -Minfo -ta=nvidia,cc13 acc_d/julia.c $(INCLUDES) $^ -o julia_acc_d -lrt
 
 # this runs are on Mac. On Linux, e.g. penguin, replace open by gthumb
 run0: 
@@ -57,4 +60,4 @@ run9:
 
 
 clean:
-	@rm -rf $(OBJ) $(TEST_JULIA) *~ *.bak *.bmp $(TEST_JULIA)_omp $(TEST_JULIA)_acc_s $(TEST_JULIA)_acc_d
+	@rm -rf $(OBJ) $(TEST_JULIA) *~ *.bak *.bmp julia_serial julia__omp julia_acc_s julia_acc_d
