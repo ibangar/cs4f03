@@ -2,16 +2,24 @@ CFLAGS+=-Wall
 CFLAGS+=-O2
 CFLAGS+=-fopenmp
 
+INCLUDES+=-I./
+
 SRC=$(wildcard *.c)
 OBJ=$(SRC:%.c=%.o)
 
+default: julia_omp julia_acc_s julia_acc_d
+
 %.o : %.c
-	gcc $(CFLAGS) -c $^ -o $@
+	gcc $(CFLAGS) $(INCLUDES) -c $^ -o $@
 
-julia: $(OBJ)
-	gcc $(CFLAGS) $^ -o julia
+julia_omp: $(OBJ)
+	gcc $(CFLAGS) omp/julia.c $(INCLUDES) $^ -o julia_omp
 
-defualt: julia
+julia_acc_s: $(OBJ)
+	gcc $(CFLAGS) acc_s/julia.c $(INCLUDES) $^ -o julia_acc_s
+
+julia_acc_d: $(OBJ)
+	gcc $(CFLAGS) acc_d/julia.c $(INCLUDES) $^ -o julia_acc_d
 
 # this runs are on Mac. On Linux, e.g. penguin, replace open by gthumb
 run0: 
@@ -47,4 +55,4 @@ run9:
 
 
 clean:
-	@rm -rf $(OBJ) julia *~ *.bak *.bmp
+	@rm -rf $(OBJ) julia *~ *.bak *.bmp julia_omp julia_acc_s julia_acc_d

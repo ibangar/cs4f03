@@ -12,6 +12,8 @@ int julia(const double *x, int xres, const double *y, int yres, const double *c,
   xgap = (x[1] - x[0]) / xres;
   ygap = (y[1] - y[0]) / yres;
 
+#define NUM_LINES 10
+#pragma omp parallel for shared(j) private(i) schedule(dynamic, NUM_LINES)
   for (j = 0; j < yres; j++)
     {
       for (i = 0; i < xres; i++)
@@ -56,6 +58,5 @@ int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	    }
 	}
     }
-
   return maxIterationCount;
 }
