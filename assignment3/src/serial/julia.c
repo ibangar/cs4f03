@@ -1,10 +1,13 @@
 #include <assert.h>
+#include <stdio.h>
 
 #include "julia.h"
 
 int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	  int flag, int maxIterations, int *iterations)
 {
+  printf("running serial julia function\n");
+
   int maxIterationCount = 0, i,j;
 
   double xi, yi, xgap, ygap, savex, savey, radius;

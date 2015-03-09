@@ -1,8 +1,11 @@
 #include "julia.h"
 
+#include <stdio.h>
+
 int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	  int flag, int maxIterations, int *iterations)
 {
+  printf("running julia function with acc double precision\n");
   int maxIterationCount = 0, i,j;
 
   double xi, yi, xgap, ygap, savex, savey, radius;

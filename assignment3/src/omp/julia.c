@@ -1,10 +1,12 @@
 #include <assert.h>
+#include <stdio.h>
 
 #include "julia.h"
 
 int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	  int flag, int maxIterations, int *iterations)
 {
+  printf("running omp julia function\n");
   int maxIterationCount = 0, i,j;
 
   double xgap = (x[1] - x[0]) / xres;
