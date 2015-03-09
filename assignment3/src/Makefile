@@ -60,4 +60,4 @@ run9:
 
 
 clean:
-	@rm -rf $(OBJ) $(TEST_JULIA) *~ *.bak *.bmp julia_serial julia__omp julia_acc_s julia_acc_d
+	@rm -rf $(wildcard *.o) $(TEST_JULIA) *~ *.bak *.bmp julia_serial julia__omp julia_acc_s julia_acc_d
