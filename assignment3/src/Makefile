@@ -1,10 +1,17 @@
+CFLAGS+=-Wall
+CFLAGS+=-O2
+CFLAGS+=-fopenmp
 
-CFLAGS=-Wall -O2
+SRC=$(wildcard *.c)
+OBJ=$(SRC:%.c=%.o)
 
-OBJS =  main.o julia.o savebmp.o color.o getparams.o 
+%.o : %.c
+	gcc $(CFLAGS) -c $^ -o $@
 
-julia: $(OBJS)
+julia: $(OBJ)
+	gcc $(CFLAGS) $^ -o julia
 
+defualt: julia
 
 # this runs are on Mac. On Linux, e.g. penguin, replace open by gthumb
 run0: 
@@ -40,4 +47,4 @@ run9:
 
 
 clean:
-	@rm -rf $(OBJS) julia *~ *.bak *.bmp
+	@rm -rf $(OBJ) julia *~ *.bak *.bmp
