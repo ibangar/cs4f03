@@ -7,27 +7,27 @@ int julia(const double *x, int xres, const double *y, int yres, const double *c,
 {
   int maxIterationCount = 0, i,j;
 
-  double xi, yi, xgap, ygap, savex, savey, radius;
-  int count;
-  xgap = (x[1] - x[0]) / xres;
-  ygap = (y[1] - y[0]) / yres;
+  double xgap = (x[1] - x[0]) / xres;
+  double ygap = (y[1] - y[0]) / yres;
 
 #define NUM_LINES 10
-#pragma omp parallel for shared(j) private(i) schedule(dynamic, NUM_LINES)
+#pragma omp parallel for shared(j, maxIterationCount) private(i) schedule(dynamic, NUM_LINES)
   for (j = 0; j < yres; j++)
     {
       for (i = 0; i < xres; i++)
 	{
 	  /* pixel to coordinates */
-	  xi = x[0] + i * xgap;
-	  yi = y[0] + j * ygap;
+	  double xi = x[0] + i * xgap;
+	  double yi = y[0] + j * ygap;
 
 	  /* initial value for the iteration */
-	  savex = flag*c[0] + (1-flag)*xi;
-	  savey = flag*c[1] + (1-flag)*yi;
+	  double savex = flag*c[0] + (1-flag)*xi;
+	  double savey = flag*c[1] + (1-flag)*yi;
 
-	  radius = 0.0;
-	  count = 0;
+      /* for testing escape value */
+	  double radius = 0.0;
+	  int count = 0;
+
 	  while ( radius <= 4.0 && count < maxIterations )
 	    {
 	     double savex2 = xi;
@@ -35,7 +35,6 @@ int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	      yi = 2.0f * savex2 * yi + savey;
 	      radius = xi * xi + yi * yi;
 	      count++;
-
 	    }
 
 	  if(count > maxIterationCount )
@@ -58,5 +57,6 @@ int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	    }
 	}
     }
+
   return maxIterationCount;
 }

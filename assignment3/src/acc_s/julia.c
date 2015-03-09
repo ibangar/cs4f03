@@ -1,5 +1,3 @@
-#include <assert.h>
-
 #include "julia.h"
 
 int julia(const double *x, int xres, const double *y, int yres, const double *c,
@@ -46,7 +44,6 @@ int julia(const double *x, int xres, const double *y, int yres, const double *c,
 	     likely in the set. */
 	  if (radius <= 4.0)
 	    {
-	      assert(count==maxIterations);
 	      *p = 0;
 	    }
 	  else
